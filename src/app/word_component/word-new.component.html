@@ -1,0 +1,4 @@
+
+<input #wordBox id="word-box" (keyup.enter)="saveWord(wordBox.value); wordBox.value=''" placeholder="word" />
+<div class="warning" *ngIf="isErrorMessage" [innerHTML]="getErrorMessage()"></div>
+<word-detail [word]="word" *ngIf="word"></word-detail>

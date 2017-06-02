@@ -1,0 +1,92 @@
+
+<div class="word-form">
+
+  <form *ngIf="wordForm && word" [formGroup]="wordForm" (ngSubmit)="updateOrCreateWord(form)">
+
+    <div *ngIf="param" class="word-text">{{word.text}}</div>
+    <div *ngIf="!param">
+      <label [for]="textBox">word</label>
+      <input #textBox formControlName="text" />
+      <input type="hidden" formControlName="id" />
+    </div>
+
+    <!-- Lexical Entry -->
+    <div>
+      <h1>Lexical Entry</h1>
+
+      <!-- Lexical Category -->
+      <div>
+        <label [for]="lexicalCategoryBox">lexical category</label>
+        <input #lexicalCategoryBox formControlName="lexicalCategory" />
+      </div>
+
+      <!-- Pronunciation -->
+      <div formArrayName="pronunciations">
+        <h2 class="title">Pronunciation
+          <i class="fa fa-plus" aria-hidden="true" (click)="addPronunciationGroup()"><span>add pronunciation</span></i>
+        </h2>
+        <div class="group-holder" *ngFor="let p of wordForm.controls.pronunciations.controls; let i=index">
+          <div [formGroupName]="i">
+            <div class="control-holder" *ngIf="p.contains('phoneticSpelling')">
+              <label for="phoneticSpellingBox">phonetic spelling</label>
+              <input #phoneticSpellingBox formControlName="phoneticSpelling" placeholder="phonetic spelling" />
+              <i class="fa fa-trash-o" aria-hidden="true" (click)="deletePhoneticSpellingControl(i)"><span>delete phonetic spelling {{i+1}}</span></i>
+            </div>
+            <div class="control-holder" *ngIf="p.contains('audioFile')">
+              <label for="audioFileBox">audio file</label>
+              <input #audioFileBox formControlName="audioFile" placeholder="audio file" />
+              <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteAudioFileControl(i)"><span>delete audio file {{i+1}}</span></i>
+            </div>
+            <input type="hidden" formControlName="id" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sense -->
+      <div formArrayName="senses">
+        <h2 class="title">Sense
+          <i class="fa fa-plus" aria-hidden="true" (click)="addSensesGroup()"><span>add sense</span></i>
+        </h2>
+        <div class="group-holder" *ngFor="let s of wordForm.controls.senses.controls; let i=index">
+          <div class="sense-container" [formGroupName]="i">
+            <span class="number">{{i + 1}})</span>
+            <div class="control-holder" *ngIf="s.contains('definition')">
+              <label for="definitionBox">definition</label>
+              <textarea #definitionBox formControlName="definition"  placeholder="definition" ></textarea>
+              <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteDefinitionControl(i)"><span>delete definition {{i+1}}</span></i>
+            </div>
+            <div class="control-holder" *ngIf="s.contains('example')">
+              <label for="exampleBox">example</label>
+              <textarea #exampleBox formControlName="example" placeholder="example" ></textarea>
+              <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteExampleControl(i)"><span>delete example {{i+1}}</span></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Etymology -->
+      <div formArrayName="etymologies">
+        <h2 class="title">Etymology
+          <i class="fa fa-plus" aria-hidden="true" (click)="addEtymologyControl()"><span>add etymology</span></i>
+        </h2>
+        <div class="control-holder" *ngFor="let e of wordForm.controls.etymologies.controls; let i=index">
+          <label for="etymologyBox">etymology</label>
+          <textarea #etymologyBox [formControlName]="i" placeholder="etymology" ></textarea>
+          <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteEtymologyControl(i)"><span>delete etymology {{i+1}}</span></i>
+        </div>
+      </div>
+
+    </div>
+    <!-- End of Lexical Entry -->
+
+    <button class="button">Submit</button>
+    <div class="button" (click)="deleteWord()">Delete</div>
+
+  </form>
+
+<!-- <div *ngIf="wordForm">
+  {{ wordForm.value | json }}
+  {{ wordForm.status }}
+</div> -->
+
+</div>

@@ -1,0 +1,44 @@
+
+<div class="word-info" *ngIf="word">
+
+  <div class="button" (click)="editWord()">EDIT</div>
+  <div class="button delete" (click)="deleteWord()">DELETE</div>
+
+  <div>
+    <span class="word" [routerLink]="['/word', word.text]">{{word.text}}</span>
+    <span class="bull">&bull;</span>
+    <span class="lexicalCategory">{{word.lexicalCategory | lowercase}}</span>
+  </div>
+
+  <div class="pronunciations" *ngIf="word.pronunciations && !isBrief">
+    <div *ngFor="let pronunciation of word.pronunciations">
+      {{pronunciation.phoneticSpelling}}
+      <span class="audio" *ngIf="pronunciation.audioFile">
+        <audio id="audio" [src]="pronunciation.audioFile"></audio>
+        <img src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDMxLjIzNyAzMS4yMzciIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDMxLjIzNyAzMS4yMzc7IiB4bWw6c3BhY2U9InByZXNlcnZlIiB3aWR0aD0iMzJweCIgaGVpZ2h0PSIzMnB4Ij4KPGc+Cgk8ZyBpZD0iYzc1X3ZvbHVtZSI+CgkJPHBhdGggZD0iTTQuMzYzLDEwLjc2MUgwdjkuNzE1aDQuMzYzbDguMjQ0LDYuMTE0YzAsMCwxLjUxMiwxLjI2OCwxLjUxMi0wLjA0MWMwLTEuMzEyLDAtMjAuODU4LDAtMjIuMDUxICAgIGMwLTEuMDI4LTEuMzMtMC4wMjQtMS4zMy0wLjAyNEw0LjM2MywxMC43NjF6IiBmaWxsPSIjMDAwMDAwIi8+CgkJPHBhdGggZD0iTTE4LjgxNiw4Ljg2NWMtMC40MzYtMC40MzQtMS4xMzctMC40MzQtMS41NjgsMGMtMC40MzYsMC40MzQtMC40MzYsMS4xMzgsMCwxLjU2OCAgICBjMS40MjYsMS40MzEsMi4xMzMsMy4yODYsMi4xMzUsNS4xNTdjLTAuMDAyLDEuODc1LTAuNzA5LDMuNzQyLTIuMTM1LDUuMTY2Yy0wLjQzNiwwLjQzNC0wLjQzNiwxLjEzNiwwLDEuNTczICAgIGMwLjIxNSwwLjIxOCwwLjQ5OCwwLjMyNCwwLjc4NSwwLjMyNGMwLjI4MSwwLDAuNTY2LTAuMTA2LDAuNzgzLTAuMzI0YzEuODU1LTEuODU5LDIuNzg3LTQuMzA2LDIuNzg1LTYuNzM5ICAgIEMyMS42MDQsMTMuMTU1LDIwLjY3MiwxMC43MjEsMTguODE2LDguODY1eiIgZmlsbD0iIzAwMDAwMCIvPgoJCTxwYXRoIGQ9Ik0yMS44MjQsNS4zN2MtMC40MzgtMC40MzYtMS4xMzktMC40MzYtMS41NzIsMGMtMC40MywwLjQzNS0wLjQzLDEuMTM3LDAsMS41NzIgICAgYzIuMzk4LDIuMzk2LDMuNTkyLDUuNTIsMy41OTYsOC42NTdjLTAuMDA0LDMuMTU0LTEuMTkzLDYuMjkyLTMuNTk2LDguNzAyYy0wLjQzMiwwLjQzNC0wLjQzLDEuMTMzLDAsMS41NyAgICBjMC4yMTksMC4yMTIsMC41MDIsMC4zMjIsMC43ODcsMC4zMjJjMC4yODMsMCwwLjU2OC0wLjExLDAuNzg1LTAuMzIyYzIuODMyLTIuODQsNC4yNDItNi41NjIsNC4yNDItMTAuMjcyICAgIEMyNi4wNjYsMTEuOTAxLDI0LjY0NSw4LjE5NCwyMS44MjQsNS4zN3oiIGZpbGw9IiMwMDAwMDAiLz4KCQk8cGF0aCBkPSJNMjUuNTA4LDEuNzljLTAuNDMyLTAuNDM2LTEuMTM1LTAuNDM2LTEuNTcsMGMtMC40MywwLjQzNC0wLjQzLDEuMTM4LDAsMS41NjggICAgYzMuMzg3LDMuMzg3LDUuMDc4LDcuODA5LDUuMDc4LDEyLjI0NWMwLDQuNDQ5LTEuNjg2LDguODg0LTUuMDc4LDEyLjI3OGMtMC40MzQsMC40MzMtMC40MywxLjEzOSwwLDEuNTcgICAgYzAuMjE5LDAuMjE1LDAuNTA0LDAuMzIyLDAuNzg5LDAuMzIyYzAuMjgxLDAsMC41NjQtMC4xMDcsMC43ODEtMC4zMjJjMy44MjItMy44MjUsNS43My04Ljg0NSw1LjcyOS0xMy44NDkgICAgQzMxLjIzOCwxMC42MDcsMjkuMzIsNS42MDIsMjUuNTA4LDEuNzl6IiBmaWxsPSIjMDAwMDAwIi8+Cgk8L2c+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPGc+CjwvZz4KPC9zdmc+Cg=="
+        (click)="playAudio()"/>
+      </span>
+    </div>
+  </div>
+
+  <div class="senses" *ngIf="word.senses">
+    <div *ngFor="let sense of word.senses; let i = index;">
+      <div class="number">{{i + 1}})</div>
+      <div class="sense-container">
+        <p class="definition">{{sense.definition}}</p>
+        <p class="example">{{sense.example}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="etymologies" *ngIf="word.etymologies && !isBrief">
+    <h2>Etymology:</h2>
+    <div *ngFor="let etymology of word.etymologies">
+      <div class="bull">&bull;</div>
+      <div class="etymology">{{etymology}}</div>
+    </div>
+  </div>
+
+  <!-- {{word | json}} -->
+
+</div>
