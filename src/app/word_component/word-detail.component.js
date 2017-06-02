@@ -48,7 +48,6 @@ var WordDetailComponent = (function () {
         if (this.wordService.setSharedWord(this.word)) {
             this.router.navigate(['/word/' + this.word.text + '/edit']);
         }
-        ;
     };
     WordDetailComponent.prototype.deleteWord = function () {
         var _this = this;

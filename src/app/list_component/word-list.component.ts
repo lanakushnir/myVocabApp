@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Router }            from '@angular/router';
-import { WordService }       from '../word.service';
-import { DayPipe }           from '../day.pipe';
-import { List }              from '../word';
+import { Component, OnInit } from '@angular/core'
+import { Router }            from '@angular/router'
+import { WordService }       from '../word.service'
+import { DayPipe }           from '../day.pipe'
+import { List }              from '../word'
 
 @Component({
   moduleId: module.id,
@@ -16,20 +16,20 @@ export class WordListComponent implements OnInit {
 
   constructor (private router: Router, private wordService: WordService) {}
 
-  ngOnInit() { this.getLists(); }
+  ngOnInit() { this.getLists() }
 
   getLists() {
     this.wordService.getLists()
                      .subscribe((lists: List[]) => this.assignLists(lists),
-                                (error: any) =>  this.errorMessage = <any>error);
+                                (error: any) =>  this.errorMessage = <any>error)
   }
   assignLists(lists: List[]) {
     this.lists = lists
-    this.listsLength = this.lists.length;
+    this.listsLength = this.lists.length
   }
 
   playList(list: List) {
-    this.router.navigate(['/play/' + list.date]);
+    this.router.navigate(['/play/' + list.date])
   }
 
 }

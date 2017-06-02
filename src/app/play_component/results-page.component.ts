@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { DayPipe } from '../day.pipe';
-import { List }    from '../word';
+import { Component, Input, Output, EventEmitter } from '@angular/core'
+import { DayPipe }                                from '../day.pipe'
+import { List }                                   from '../word'
 
 @Component({
   moduleId: module.id,
@@ -9,10 +9,10 @@ import { List }    from '../word';
 })
 export class ResultsPageComponent {
 
-  @Input() list: List;
-  @Output() playMore: EventEmitter<boolean> = new EventEmitter();
+  @Input() list: List
+  @Output() playMore: EventEmitter<boolean> = new EventEmitter()
 
   toPlayAgain() {
-    this.playMore.emit( true );
+    this.playMore.emit( true )
   }
 }

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { Router }            from '@angular/router';
-import { WordService }       from '../word.service';
-import { Word }              from '../word';
+import { Component, OnInit } from '@angular/core'
+import { Router }            from '@angular/router'
+import { WordService }       from '../word.service'
+import { Word }              from '../word'
 
 @Component({
   moduleId: module.id,
@@ -9,10 +9,10 @@ import { Word }              from '../word';
   templateUrl: './word-new.component.html',
 })
 export class WordNewComponent {
-  isErrorMessage: boolean = false;
-  wordToApi: string = null;
-  errorReason: any;
-  word: Word;
+  isErrorMessage: boolean = false
+  wordToApi: string = null
+  errorReason: any
+  word: Word
 
   constructor(private wordService: WordService, private router: Router) {}
 
@@ -21,19 +21,19 @@ export class WordNewComponent {
     this.wordToApi = text
     this.errorReason = null
     this.word = null
-    if (!text.trim()) return;
+    if (!text.trim()) return
     this.wordService.saveWord(text)
                     .subscribe((json: any) => this.displayWord(json),
-                               (error: any) => this.displayError(error));
+                               (error: any) => this.displayError(error))
   }
   displayWord(json: any) {
     if (json.does_exist) {
       this.errorReason = {wordExist: json.does_exist}
       this.displayError() }
-    this.word = json;
+    this.word = json
   }
   displayError(error?: any) {
-    this.isErrorMessage = true;
+    this.isErrorMessage = true
   }
   getErrorMessage() {
     var message = ""
@@ -44,10 +44,10 @@ export class WordNewComponent {
     if (this.errorReason) { message = errorMessage[ String(Object.keys(this.errorReason)[0]) ] }
     else { message = errorMessage["default"] }
 
-    return message;
+    return message
   }
   gotoDetail(word: Word): void {
-    let link = ['/words/' + word.text ];
-    this.router.navigate(link);
+    let link = ['/words/' + word.text ]
+    this.router.navigate(link)
   }
 }

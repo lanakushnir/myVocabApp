@@ -43,11 +43,9 @@ var PlayComponent = (function () {
         if (array.length <= 1)
             return array;
         for (var i = 0; i < array.length; i++) {
-            var randomIndex = this.getRandom(i, array.length - 1);
-            _a = [array[randomIndex], array[i]], array[i] = _a[0], array[randomIndex] = _a[1];
+            var randomIndex = this.getRandom(i, array.length - 1)[array[i], array[randomIndex]] = [array[randomIndex], array[i]];
         }
         return array;
-        var _a;
     };
     PlayComponent.prototype.getRandom = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
