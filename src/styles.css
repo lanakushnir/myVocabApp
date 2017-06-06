@@ -71,6 +71,7 @@ div.warning {
   margin: 30px auto;
   text-align: center;
 }
+div.alert { color: red; }
 
 /******************************************/
 /*****      HeaderComponent           *****/

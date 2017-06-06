@@ -1,6 +1,6 @@
 import { Component, Input, OnInit }          from '@angular/core'
-import { FormsModule, ReactiveFormsModule, FormBuilder,
-         FormGroup, FormControl, FormArray } from '@angular/forms'
+import { ReactiveFormsModule, FormBuilder, FormGroup,
+        FormControl, FormArray, Validators } from '@angular/forms'
 import { Router, ActivatedRoute, Params }    from '@angular/router'
 import { WordService }                       from '../word.service'
 import { Word, Pronunciation, Entry, Sense } from '../word'
@@ -14,6 +14,8 @@ export class WordFormComponent implements OnInit {
   params = this.route.snapshot.params['text']
   public wordForm: FormGroup
   errorMessage: string
+  showValidationMessage: boolean = false
+  validationMessage: string
   word: Word
   lexicalCategories: string[] = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb']
 
@@ -24,17 +26,15 @@ export class WordFormComponent implements OnInit {
 
   ngOnInit() {
     this.word = this.wordService.getSharedWord()
-    console.log("ng on init word get shared word")
-    console.log(this.word)
     if (this.word) {
-      this.createForm(this.word)
+      this.buildForm(this.word)
       this.wordService.deleteSharedWord() }
     else if (!this.params) { this.getDummyWord() }
     else { this.getWord() }
   }
   getWord() {
     this.wordService.getWord(this.params)
-                    .subscribe((word: Word) => this.createForm( this.word = word ),
+                    .subscribe((word: Word) => this.buildForm( this.word = word ),
                               (error: any) =>  this.errorMessage = <any>error)
   }
   updateOrCreateWord() {
@@ -66,19 +66,21 @@ export class WordFormComponent implements OnInit {
   }
   getDummyWord() {
     this.word = this.wordService.getDummyWord()
-    this.createForm(this.word)
+    this.buildForm(this.word)
   }
 
-  createForm(word: Word) {
+  buildForm(word: Word) {
     if (!word) return
     var w = this.mapWord(word)
 
     this.wordForm = this.fb.group({
       id: this.fb.control(w.id),
-      text: this.fb.control(w.text),
+      text: this.fb.control(w.text, Validators.required) ,
       pronunciations: this.fb.array( this.addPronunciationsArray(w) ),
       entries: this.fb.array( this.addEntriesArray(w) )
     })
+    this.wordForm.valueChanges.subscribe(data => this.validateForm())
+    // this.onValueChanged()
   }
   mapWord(word?: Word) {
     this.word = word
@@ -127,7 +129,7 @@ export class WordFormComponent implements OnInit {
     for (let p of w.pronunciations) {
       var obj: any = {}
       obj.id = this.fb.control(p.id)
-      if (p.phoneticSpelling) { obj.phoneticSpelling = this.fb.control(p.phoneticSpelling) }
+      if (p.phoneticSpelling) { obj.phoneticSpelling = this.fb.control(p.phoneticSpelling, Validators.required) }
       if (p.audioFile) { obj.audioFile = this.fb.control(p.audioFile) }
       arr.push( this.fb.group( obj ) )
     }
@@ -161,7 +163,7 @@ export class WordFormComponent implements OnInit {
     for (let e of w.entries) {
       var obj: any = {}
       obj.id = this.fb.control(e.id)
-      if (e.lexicalCategory) { obj.lexicalCategory = this.fb.control(e.lexicalCategory) }
+      if (e.lexicalCategory) { obj.lexicalCategory = this.fb.control( e.lexicalCategory, Validators.required ) }
       if (e.etymologies) { obj.etymologies = this.fb.array( this.addEtymologiesArray(e) ) }
       if (e.senses) { obj.senses = this.fb.array( this.addSensesArray(e) ) }
       arr.push( this.fb.group( obj ) )
@@ -222,4 +224,48 @@ export class WordFormComponent implements OnInit {
     if ( !formGroup.contains("definition") ) { formArray.removeAt(j) }
   }
 
+  validateForm() {
+    this.showValidationMessage = false;
+    var form = this.wordForm
+
+    if ( !this.wordForm.controls['text']['valid']) { this.presentError('text'); return }
+
+    var p_length: number = this.wordForm.controls['pronunciations']['length']
+    if (p_length < 1) { this.presentError('pronunciations'); return }
+    for (var i = 0; i < p_length; i++) {
+      console.log(i + " this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']")
+      console.log(this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid'])
+      if (this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['value'] != null) { this.presentError('phoneticSpelling'); return }
+    }
+
+    // var e_length: number = this.wordForm.controls['entries']['length']
+    // if (e_length < 1) { this.presentError('entries'); return }
+    // for (var i = 0; i < e_length; i++) {
+    //
+    //   if (!this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory']['valid']) { this.presentError('lexicalCategory'); return }
+    //   var s_length: number = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['length']
+    //   if (s_length < 1) { this.presentError('senses'); return }
+    //
+    //   for (var j = 0; j < s_length; j++) {
+    //     if (!this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition']['valid']) { this.presentError('definition'); return }
+    //   }
+    // }
+
+    console.log('*********')
+    console.log(form)
+    console.log(this.wordForm)
+  }
+  presentError(key?: string) {
+    this.showValidationMessage = true
+    this.validationMessage = this.validationMessages[key]
+  }
+  validationMessages = {
+    'text':  'Word text is required.',
+    'pronunciations': 'Add at least one pronunciation.',
+    'phoneticSpelling': 'Phonetic spelling is required.' ,
+    'entries': 'Add at least one lexical entry.',
+    'lexicalCategory': 'Select lexical category for the entry.',
+    'senses': 'Add at least one sense of the word.',
+    'definition': 'Definition field is required.'
+  }
 }

@@ -1,12 +1,14 @@
 
 <div class="word-form">
 
-  <form *ngIf="wordForm && word" [formGroup]="wordForm" (ngSubmit)="updateOrCreateWord(form)">
+  <form *ngIf="wordForm && word" [formGroup]="wordForm" (ngSubmit)="validateForm(form)" novalidate>
+  <!-- (ngSubmit)="updateOrCreateWord(form)" novalidate> -->
+    <div class="alert" *ngIf="showValidationMessage">{{ validationMessage }}</div>
 
     <div *ngIf="param" class="word-text">{{word.text}}</div>
     <div *ngIf="!param">
       <label [for]="textBox">word</label>
-      <input #textBox formControlName="text" />
+      <input #textBox formControlName="text" required />
       <input type="hidden" formControlName="id" />
     </div>
 
@@ -22,8 +24,9 @@
         <div class="group-holder" *ngFor="let p of wordForm.controls.pronunciations.controls; let i=index">
           <div [formGroupName]="i">
             <div class="control-holder" *ngIf="p.contains('phoneticSpelling')">
+              <!-- <div class="alert" *ngIf="formErrors.phoneticSpelling">{{ formErrors.phoneticSpelling }}</div> -->
               <label for="phoneticSpellingBox">phonetic spelling</label>
-              <input #phoneticSpellingBox formControlName="phoneticSpelling" placeholder="phonetic spelling" />
+              <input #phoneticSpellingBox formControlName="phoneticSpelling" placeholder="phonetic spelling" required />
               <i class="fa fa-trash-o" aria-hidden="true" (click)="deletePhoneticSpellingControl(i)"><span>delete phonetic spelling {{i+1}}</span></i>
             </div>
             <div class="control-holder" *ngIf="p.contains('audioFile')">
@@ -44,8 +47,9 @@
 
             <!++ Lexical Gategory ++>
             <div class="control-holder" *ngIf="e.contains('lexicalCategory')">
+              <!-- <div class="alert" *ngIf="formErrors.lexicalCategory">{{ formErrors.lexicalCategory }}</div> -->
               <label for="lexicalCategoryBox">lexical category</label>
-              <select #lexicalCategoryBox formControlName="lexicalCategory">
+              <select #lexicalCategoryBox formControlName="lexicalCategory" required>
                 <option *ngFor="let lc of lexicalCategories" [value]="lc">{{lc}}</option>
               </select>
               <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteEntryGroup(i)"><span>delete entry {{i+1}}</span></i>
@@ -60,8 +64,9 @@
                 <div class="sense-container" [formGroupName]="j">
                   <span class="number">{{j + 1}})</span>
                   <div class="control-holder" *ngIf="s.contains('definition')">
+                    <!-- <div class="alert" *ngIf="formErrors.definition">{{ formErrors.definition }}</div> -->
                     <label for="definitionBox">definition</label>
-                    <textarea #definitionBox formControlName="definition"  placeholder="definition" ></textarea>
+                    <textarea #definitionBox formControlName="definition"  placeholder="definition" required ></textarea>
                     <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteDefinitionControl(i,j)"><span>delete definition {{j+1}}</span></i>
                   </div>
                   <div class="control-holder" *ngIf="s.contains('example')">
@@ -91,8 +96,8 @@
 
     </div>
     <!++ End of Lexical Entry ++>
-
-    <button class="button">Submit</button>
+<!-- [disabled]="!wordForm.valid" -->
+    <button class="button" >Submit</button>
     <div class="button" (click)="deleteWord()">Delete</div>
 
   </form>

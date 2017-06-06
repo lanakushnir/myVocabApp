@@ -19,14 +19,22 @@ var WordFormComponent = (function () {
         this.router = router;
         this.fb = fb;
         this.params = this.route.snapshot.params['text'];
+        this.showValidationMessage = false;
         this.lexicalCategories = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb'];
+        this.validationMessages = {
+            'text': 'Word text is required.',
+            'pronunciations': 'Add at least one pronunciation.',
+            'phoneticSpelling': 'Phonetic spelling is required.',
+            'entries': 'Add at least one lexical entry.',
+            'lexicalCategory': 'Select lexical category for the entry.',
+            'senses': 'Add at least one sense of the word.',
+            'definition': 'Definition field is required.'
+        };
     }
     WordFormComponent.prototype.ngOnInit = function () {
         this.word = this.wordService.getSharedWord();
-        console.log("ng on init word get shared word");
-        console.log(this.word);
         if (this.word) {
-            this.createForm(this.word);
+            this.buildForm(this.word);
             this.wordService.deleteSharedWord();
         }
         else if (!this.params) {
@@ -39,7 +47,7 @@ var WordFormComponent = (function () {
     WordFormComponent.prototype.getWord = function () {
         var _this = this;
         this.wordService.getWord(this.params)
-            .subscribe(function (word) { return _this.createForm(_this.word = word); }, function (error) { return _this.errorMessage = error; });
+            .subscribe(function (word) { return _this.buildForm(_this.word = word); }, function (error) { return _this.errorMessage = error; });
     };
     WordFormComponent.prototype.updateOrCreateWord = function () {
         var word = this.wordForm.value;
@@ -72,18 +80,21 @@ var WordFormComponent = (function () {
     };
     WordFormComponent.prototype.getDummyWord = function () {
         this.word = this.wordService.getDummyWord();
-        this.createForm(this.word);
+        this.buildForm(this.word);
     };
-    WordFormComponent.prototype.createForm = function (word) {
+    WordFormComponent.prototype.buildForm = function (word) {
+        var _this = this;
         if (!word)
             return;
         var w = this.mapWord(word);
         this.wordForm = this.fb.group({
             id: this.fb.control(w.id),
-            text: this.fb.control(w.text),
+            text: this.fb.control(w.text, forms_1.Validators.required),
             pronunciations: this.fb.array(this.addPronunciationsArray(w)),
             entries: this.fb.array(this.addEntriesArray(w))
         });
+        this.wordForm.valueChanges.subscribe(function (data) { return _this.validateForm(); });
+        // this.onValueChanged()
     };
     WordFormComponent.prototype.mapWord = function (word) {
         this.word = word;
@@ -147,7 +158,7 @@ var WordFormComponent = (function () {
             var obj = {};
             obj.id = this.fb.control(p.id);
             if (p.phoneticSpelling) {
-                obj.phoneticSpelling = this.fb.control(p.phoneticSpelling);
+                obj.phoneticSpelling = this.fb.control(p.phoneticSpelling, forms_1.Validators.required);
             }
             if (p.audioFile) {
                 obj.audioFile = this.fb.control(p.audioFile);
@@ -190,7 +201,7 @@ var WordFormComponent = (function () {
             var obj = {};
             obj.id = this.fb.control(e.id);
             if (e.lexicalCategory) {
-                obj.lexicalCategory = this.fb.control(e.lexicalCategory);
+                obj.lexicalCategory = this.fb.control(e.lexicalCategory, forms_1.Validators.required);
             }
             if (e.etymologies) {
                 obj.etymologies = this.fb.array(this.addEtymologiesArray(e));
@@ -266,6 +277,46 @@ var WordFormComponent = (function () {
         if (!formGroup.contains("definition")) {
             formArray.removeAt(j);
         }
+    };
+    WordFormComponent.prototype.validateForm = function () {
+        this.showValidationMessage = false;
+        var form = this.wordForm;
+        if (!this.wordForm.controls['text']['valid']) {
+            this.presentError('text');
+            return;
+        }
+        var p_length = this.wordForm.controls['pronunciations']['length'];
+        if (p_length < 1) {
+            this.presentError('pronunciations');
+            return;
+        }
+        for (var i = 0; i < p_length; i++) {
+            console.log(i + " this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']");
+            console.log(this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']);
+            if (this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['value'] != null) {
+                this.presentError('phoneticSpelling');
+                return;
+            }
+        }
+        // var e_length: number = this.wordForm.controls['entries']['length']
+        // if (e_length < 1) { this.presentError('entries'); return }
+        // for (var i = 0; i < e_length; i++) {
+        //
+        //   if (!this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory']['valid']) { this.presentError('lexicalCategory'); return }
+        //   var s_length: number = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['length']
+        //   if (s_length < 1) { this.presentError('senses'); return }
+        //
+        //   for (var j = 0; j < s_length; j++) {
+        //     if (!this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition']['valid']) { this.presentError('definition'); return }
+        //   }
+        // }
+        console.log('*********');
+        console.log(form);
+        console.log(this.wordForm);
+    };
+    WordFormComponent.prototype.presentError = function (key) {
+        this.showValidationMessage = true;
+        this.validationMessage = this.validationMessages[key];
     };
     WordFormComponent = __decorate([
         core_1.Component({
