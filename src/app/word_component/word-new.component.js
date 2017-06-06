@@ -53,10 +53,6 @@ var WordNewComponent = (function () {
         }
         return message;
     };
-    WordNewComponent.prototype.gotoDetail = function (word) {
-        var link = ['/words/' + word.text];
-        this.router.navigate(link);
-    };
     WordNewComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

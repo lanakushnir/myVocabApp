@@ -28,7 +28,7 @@ export class WordDetailComponent implements OnInit {
   getWord() {
     this.wordService.getWord(this.param)
                     .subscribe((word: Word) => this.word = word,
-                              (error: any) =>  this.errorMessage = <any>error)
+                               (error: any) =>  this.errorMessage = <any>error)
   }
 
   playAudio() {
@@ -49,10 +49,11 @@ export class WordDetailComponent implements OnInit {
       this.router.navigate(['/word/' + this.word.text + '/edit'])
     }
   }
+
   deleteWord() {
     this.wordService.deleteWord(this.word)
                     .subscribe((result) => this.router.navigate(['/list']),
-                              (error: any) => this.errorMessage = <any>error)
+                           (error: any) => this.errorMessage = <any>error)
   }
 
 }

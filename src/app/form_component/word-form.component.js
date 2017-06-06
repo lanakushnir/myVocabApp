@@ -18,7 +18,7 @@ var WordFormComponent = (function () {
         this.route = route;
         this.router = router;
         this.fb = fb;
-        this.param = this.route.snapshot.params['text'];
+        this.params = this.route.snapshot.params['text'];
     }
     WordFormComponent.prototype.ngOnInit = function () {
         this.word = this.wordService.getSharedWord();
@@ -26,7 +26,7 @@ var WordFormComponent = (function () {
             this.createForm(this.word);
             this.wordService.deleteSharedWord();
         }
-        else if (!this.param) {
+        else if (!this.params) {
             this.getDummyWord();
         }
         else {
@@ -35,12 +35,12 @@ var WordFormComponent = (function () {
     };
     WordFormComponent.prototype.getWord = function () {
         var _this = this;
-        this.wordService.getWord(this.param)
+        this.wordService.getWord(this.params)
             .subscribe(function (word) { return _this.createForm(_this.word = word); }, function (error) { return _this.errorMessage = error; });
     };
     WordFormComponent.prototype.updateOrCreateWord = function () {
         var word = this.wordForm.value;
-        if (this.param) {
+        if (this.params) {
             this.updateWord(word);
         }
         else {
@@ -78,10 +78,8 @@ var WordFormComponent = (function () {
         this.wordForm = this.fb.group({
             id: this.fb.control(w.id),
             text: this.fb.control(w.text),
-            lexicalCategory: this.fb.control(w.lexicalCategory),
             pronunciations: this.fb.array(this.addPronunciationsArray(w)),
-            senses: this.fb.array(this.addSensesArray(w)),
-            etymologies: this.fb.array(this.addEtymologiesArray(w))
+            entries: this.fb.array(this.addEntriesArray(w))
         });
     };
     WordFormComponent.prototype.mapWord = function (word) {
@@ -89,7 +87,6 @@ var WordFormComponent = (function () {
         var w = {};
         w.id = word.id;
         w.text = word.text;
-        w.lexicalCategory = word.lexicalCategory;
         w.pronunciations = [];
         for (var _i = 0, _a = word.pronunciations; _i < _a.length; _i++) {
             var p = _a[_i];
@@ -103,25 +100,39 @@ var WordFormComponent = (function () {
             }
             w.pronunciations.push(obj);
         }
-        w.senses = [];
-        for (var _b = 0, _c = word.senses; _b < _c.length; _b++) {
-            var s = _c[_b];
+        w.entries = [];
+        for (var _b = 0, _c = word.entries; _b < _c.length; _b++) {
+            var e = _c[_b];
             var obj = {};
-            obj.id = s.id;
-            if (s.definition) {
-                obj.definition = s.definition;
+            obj.id = e.id;
+            if (e.lexicalCategory) {
+                obj.lexicalCategory = e.lexicalCategory;
             }
-            if (s.example) {
-                obj.example = s.example;
+            obj.etymologies = [];
+            if (e.etymologies) {
+                for (var _d = 0, _e = e.etymologies; _d < _e.length; _d++) {
+                    var et = _e[_d];
+                    if (et) {
+                        obj.etymologies.push(et);
+                    }
+                }
             }
-            w.senses.push(obj);
-        }
-        w.etymologies = [];
-        for (var _d = 0, _e = word.etymologies; _d < _e.length; _d++) {
-            var e = _e[_d];
-            if (e) {
-                w.etymologies.push(e);
+            obj.senses = [];
+            if (e.senses) {
+                for (var _f = 0, _g = e.senses; _f < _g.length; _f++) {
+                    var s = _g[_f];
+                    var s_obj = {};
+                    s_obj.id = s.id;
+                    if (s.definition) {
+                        s_obj.definition = s.definition;
+                    }
+                    if (s.example) {
+                        s_obj.example = s.example;
+                    }
+                    obj.senses.push(s_obj);
+                }
             }
+            w.entries.push(obj);
         }
         return w;
     };
@@ -144,7 +155,7 @@ var WordFormComponent = (function () {
     };
     WordFormComponent.prototype.addPronunciationGroup = function () {
         var formArray = this.wordForm.controls["pronunciations"];
-        var formGroup = this.fb.group({ phoneticSpelling: null, audioFile: null, id: null });
+        var formGroup = this.fb.group({ audioFile: null, phoneticSpelling: null });
         formArray.push(formGroup);
     };
     WordFormComponent.prototype.deletePhoneticSpellingControl = function (i) {
@@ -163,10 +174,56 @@ var WordFormComponent = (function () {
             formArray.removeAt(i);
         }
     };
-    // SENSES
-    WordFormComponent.prototype.addSensesArray = function (w) {
+    WordFormComponent.prototype.addEntriesArray = function (w) {
         var arr = [];
-        for (var _i = 0, _a = w.senses; _i < _a.length; _i++) {
+        for (var _i = 0, _a = w.entries; _i < _a.length; _i++) {
+            var e = _a[_i];
+            var obj = {};
+            obj.id = this.fb.control(e.id);
+            if (e.lexicalCategory) {
+                obj.lexicalCategory = this.fb.control(e.lexicalCategory);
+            }
+            if (e.etymologies) {
+                obj.etymologies = this.fb.array(this.addEtymologiesArray(e));
+            }
+            if (e.senses) {
+                obj.senses = this.fb.array(this.addSensesArray(e));
+            }
+            arr.push(this.fb.group(obj));
+        }
+        return arr;
+    };
+    WordFormComponent.prototype.addEntryGroup = function () {
+        var formArray = this.wordForm.controls["entries"];
+        var formGroup = this.fb.group({ lexicalCategory: null, etymologies: this.fb.array([]), senses: this.fb.array([]) });
+        formArray.push(formGroup);
+    };
+    WordFormComponent.prototype.deleteEntryGroup = function (i) {
+        var formArray = this.wordForm.controls["entries"];
+        formArray.removeAt(i);
+    };
+    // ETYMOLOGIES
+    WordFormComponent.prototype.addEtymologiesArray = function (e) {
+        var arr = [];
+        for (var _i = 0, _a = e.etymologies; _i < _a.length; _i++) {
+            var et = _a[_i];
+            arr.push(this.fb.control(et));
+        }
+        return arr;
+    };
+    WordFormComponent.prototype.addEtymologyControl = function (i) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["etymologies"];
+        var formControl = this.fb.control(null);
+        formArray.push(formControl);
+    };
+    WordFormComponent.prototype.deleteEtymologyControl = function (i, j) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["etymologies"];
+        formArray.removeAt(j);
+    };
+    // SENSES
+    WordFormComponent.prototype.addSensesArray = function (e) {
+        var arr = [];
+        for (var _i = 0, _a = e.senses; _i < _a.length; _i++) {
             var s = _a[_i];
             var obj = {};
             obj.id = this.fb.control(s.id);
@@ -180,44 +237,26 @@ var WordFormComponent = (function () {
         }
         return arr;
     };
-    WordFormComponent.prototype.addSensesGroup = function () {
-        var formArray = this.wordForm.controls["senses"];
-        var formGroup = this.fb.group({ definition: null, example: null, id: null });
+    WordFormComponent.prototype.addSenseGroup = function (i) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"];
+        var formGroup = this.fb.group({ definition: null, example: null });
         formArray.push(formGroup);
     };
-    WordFormComponent.prototype.deleteDefinitionControl = function (i) {
-        var formArray = this.wordForm.controls["senses"];
-        var formGroup = formArray.at(i);
+    WordFormComponent.prototype.deleteDefinitionControl = function (i, j) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"];
+        var formGroup = formArray.at(j);
         formGroup.removeControl("definition");
         if (!formGroup.contains("example")) {
-            formArray.removeAt(i);
+            formArray.removeAt(j);
         }
     };
-    WordFormComponent.prototype.deleteExampleControl = function (i) {
-        var formArray = this.wordForm.controls["senses"];
-        var formGroup = formArray.at(i);
+    WordFormComponent.prototype.deleteExampleControl = function (i, j) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"];
+        var formGroup = formArray.at(j);
         formGroup.removeControl("example");
         if (!formGroup.contains("definition")) {
-            formArray.removeAt(i);
+            formArray.removeAt(j);
         }
-    };
-    // ETYMOLOGIES
-    WordFormComponent.prototype.addEtymologiesArray = function (w) {
-        var arr = [];
-        for (var _i = 0, _a = w.etymologies; _i < _a.length; _i++) {
-            var e = _a[_i];
-            arr.push(this.fb.control(e));
-        }
-        return arr;
-    };
-    WordFormComponent.prototype.addEtymologyControl = function () {
-        var formArray = this.wordForm.controls["etymologies"];
-        var formControl = this.fb.control(null);
-        formArray.push(formControl);
-    };
-    WordFormComponent.prototype.deleteEtymologyControl = function (i) {
-        var formArray = this.wordForm.controls["etymologies"];
-        formArray.removeAt(i);
     };
     WordFormComponent = __decorate([
         core_1.Component({

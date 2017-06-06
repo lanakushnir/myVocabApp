@@ -17,6 +17,12 @@ var Pronunciation = (function () {
     return Pronunciation;
 }());
 exports.Pronunciation = Pronunciation;
+var Entry = (function () {
+    function Entry() {
+    }
+    return Entry;
+}());
+exports.Entry = Entry;
 var Sense = (function () {
     function Sense() {
     }

@@ -1,4 +1,3 @@
-
 import { Injectable }                     from '@angular/core'
 import { Http, Response, Headers }        from '@angular/http'
 import { Router, ActivatedRoute, Params } from '@angular/router'
@@ -28,14 +27,14 @@ export class WordService {
                     .catch(this.handleError )
   }
 
-  getList(param: string): Observable<List> {
-    return this.http.get( this.listsUrl + '/' + param )
+  getList(params: string): Observable<List> {
+    return this.http.get( this.listsUrl + '/' + params )
                     .map( this.extractData )
                     .catch(this.handleError )
   }
 
-  getWord(param: string): Observable<Word> {
-    return this.http.get( this.wordsUrl + '/' + param )
+  getWord(params: string): Observable<Word> {
+    return this.http.get( this.wordsUrl + '/' + params )
                     .map( this.extractData )
                     .catch(this.handleError )
   }
@@ -63,11 +62,9 @@ export class WordService {
     var dummyWord: Word = {
       id: null,
       text: null,
-      lexicalCategory: null,
       needsToBeReviewed: 10,
       pronunciations: [ ],
-      senses: [ ],
-      etymologies: [ ]
+      entries: [ ]
     }
     return dummyWord
   }

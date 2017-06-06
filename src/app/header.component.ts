@@ -6,6 +6,7 @@ import { Component } from '@angular/core'
     <div class="nav">
       <div routerLink="/new">NEW</div>
       <div routerLink="/list">LIST</div>
+      <div routerLink="/add">ADD</div>
     </div>
     <p>myVocabApp</p>
   `

@@ -7,7 +7,6 @@
   <div>
     <span class="word" [routerLink]="['/word', word.text]">{{word.text}}</span>
     <span class="bull">&bull;</span>
-    <span class="lexicalCategory">{{word.lexicalCategory | lowercase}}</span>
   </div>
 
   <div class="pronunciations" *ngIf="word.pronunciations && !isBrief">
@@ -21,24 +20,30 @@
     </div>
   </div>
 
-  <div class="senses" *ngIf="word.senses">
-    <div *ngFor="let sense of word.senses; let i = index;">
-      <div class="number">{{i + 1}})</div>
-      <div class="sense-container">
-        <p class="definition">{{sense.definition}}</p>
-        <p class="example">{{sense.example}}</p>
+  <div class="entries" *ngIf="word.entries">
+    <div *ngFor="let entry of word.entries; let i = index;">
+      <span class="lexicalCategory">{{entry.lexicalCategory | lowercase}}</span>
+
+      <div class="senses" *ngIf="entry.senses">
+        <div *ngFor="let sense of entry.senses; let i = index;">
+          <div class="number">{{i + 1}})</div>
+          <div class="sense-container">
+            <p class="definition">{{sense.definition}}</p>
+            <p class="example">{{sense.example}}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="etymologies" *ngIf="entry.etymologies && !isBrief">
+        <h2>Etymology:</h2>
+        <div *ngFor="let etymology of entry.etymologies">
+          <div class="bull">&bull;</div>
+          <div class="etymology">{{etymology}}</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="etymologies" *ngIf="word.etymologies && !isBrief">
-    <h2>Etymology:</h2>
-    <div *ngFor="let etymology of word.etymologies">
-      <div class="bull">&bull;</div>
-      <div class="etymology">{{etymology}}</div>
-    </div>
-  </div>
-
-  <!-- {{word | json}} -->
+  {{word | json}}
 
 </div>

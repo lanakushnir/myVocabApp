@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder,
          FormGroup, FormControl, FormArray } from '@angular/forms'
 import { Router, ActivatedRoute, Params }    from '@angular/router'
 import { WordService }                       from '../word.service'
-import { Word, Pronunciation, Sense }        from '../word'
+import { Word, Pronunciation, Entry, Sense } from '../word'
 
 @Component({
   moduleId: module.id,
@@ -11,7 +11,7 @@ import { Word, Pronunciation, Sense }        from '../word'
   templateUrl: './word-form.component.html'
 })
 export class WordFormComponent implements OnInit {
-  param = this.route.snapshot.params['text']
+  params = this.route.snapshot.params['text']
   public wordForm: FormGroup
   errorMessage: string
   word: Word
@@ -26,18 +26,17 @@ export class WordFormComponent implements OnInit {
     if (this.word) {
       this.createForm(this.word)
       this.wordService.deleteSharedWord() }
-    else if (!this.param) { this.getDummyWord() }
+    else if (!this.params) { this.getDummyWord() }
     else { this.getWord() }
   }
-
   getWord() {
-    this.wordService.getWord(this.param)
+    this.wordService.getWord(this.params)
                     .subscribe((word: Word) => this.createForm( this.word = word ),
                               (error: any) =>  this.errorMessage = <any>error)
   }
   updateOrCreateWord() {
     var word = this.wordForm.value
-    if (this.param) {
+    if (this.params) {
       this.updateWord(word)
     } else {
       this.createWord(word)
@@ -74,10 +73,8 @@ export class WordFormComponent implements OnInit {
     this.wordForm = this.fb.group({
       id: this.fb.control(w.id),
       text: this.fb.control(w.text),
-      lexicalCategory: this.fb.control(w.lexicalCategory),
       pronunciations: this.fb.array( this.addPronunciationsArray(w) ),
-      senses: this.fb.array( this.addSensesArray(w) ),
-      etymologies: this.fb.array( this.addEtymologiesArray(w) )
+      entries: this.fb.array( this.addEntriesArray(w) )
     })
   }
   mapWord(word?: Word) {
@@ -85,7 +82,7 @@ export class WordFormComponent implements OnInit {
     var w: any = {}
     w.id = word.id
     w.text = word.text
-    w.lexicalCategory = word.lexicalCategory
+
     w.pronunciations = []
     for (let p of word.pronunciations) {
       var obj: any = {}
@@ -94,16 +91,30 @@ export class WordFormComponent implements OnInit {
       if (p.phoneticSpelling) { obj.phoneticSpelling = p.phoneticSpelling }
       w.pronunciations.push(obj)
     }
-    w.senses = []
-    for (let s of word.senses) {
+
+    w.entries = []
+    for (let e of word.entries) {
       var obj: any = {}
-      obj.id = s.id
-      if (s.definition) { obj.definition = s.definition }
-      if (s.example) { obj.example = s.example }
-      w.senses.push(obj)
+      obj.id = e.id
+      if (e.lexicalCategory) { obj.lexicalCategory = e.lexicalCategory }
+      obj.etymologies = []
+      if (e.etymologies) {
+        for (let et of e.etymologies) {
+          if (et) { obj.etymologies.push(et) }
+        }
+      }
+      obj.senses = []
+      if (e.senses) {
+        for (let s of e.senses) {
+          var s_obj: any = {}
+          s_obj.id = s.id
+          if (s.definition) { s_obj.definition = s.definition }
+          if (s.example) { s_obj.example = s.example }
+          obj.senses.push(s_obj)
+        }
+      }
+      w.entries.push(obj)
     }
-    w.etymologies = []
-    for (let e of word.etymologies) { if (e) { w.etymologies.push(e) } }
     return w
   }
 
@@ -121,7 +132,7 @@ export class WordFormComponent implements OnInit {
   }
   addPronunciationGroup() {
     const formArray = <FormArray>this.wordForm.controls["pronunciations"]
-    let formGroup = <FormGroup>this.fb.group( { phoneticSpelling: null, audioFile: null, id: null })
+    let formGroup = <FormGroup>this.fb.group( { audioFile: null, phoneticSpelling: null })
     formArray.push( formGroup )
   }
   deletePhoneticSpellingControl(i: number) {
@@ -137,10 +148,47 @@ export class WordFormComponent implements OnInit {
     if ( !formGroup.contains("phoneticSpelling") ) { formArray.removeAt(i) }
   }
 
-  // SENSES
-  addSensesArray(w: Word) {
+  addEntriesArray(w: Word) {
     var arr: any[] = []
-    for (let s of w.senses) {
+    for (let e of w.entries) {
+      var obj: any = {}
+      obj.id = this.fb.control(e.id)
+      if (e.lexicalCategory) { obj.lexicalCategory = this.fb.control(e.lexicalCategory) }
+      if (e.etymologies) { obj.etymologies = this.fb.array( this.addEtymologiesArray(e) ) }
+      if (e.senses) { obj.senses = this.fb.array( this.addSensesArray(e) ) }
+      arr.push( this.fb.group( obj ) )
+    }
+    return arr
+  }
+  addEntryGroup() {
+    const formArray = <FormArray>this.wordForm.controls["entries"]
+    let formGroup = <FormGroup>this.fb.group( { lexicalCategory: null, etymologies: this.fb.array([]), senses: this.fb.array([]) })
+    formArray.push( formGroup )
+  }
+  deleteEntryGroup(i: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]
+    formArray.removeAt(i)
+  }
+
+  // ETYMOLOGIES
+  addEtymologiesArray(e: Entry) {
+    var arr: any[] = []
+    for (let et of e.etymologies)  { arr.push( this.fb.control(et) )}
+    return arr
+  }
+  addEtymologyControl(i: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["etymologies"]
+    let formControl = <FormControl>this.fb.control( null )
+    formArray.push( formControl )
+  }
+  deleteEtymologyControl(i:number, j: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["etymologies"]
+    formArray.removeAt(j)
+  }
+  // SENSES
+  addSensesArray(e: Entry) {
+    var arr: any[] = []
+    for (let s of e.senses) {
       var obj: any = {}
       obj.id = this.fb.control(s.id)
       if (s.definition) { obj.definition = this.fb.control(s.definition) }
@@ -149,40 +197,22 @@ export class WordFormComponent implements OnInit {
     }
     return arr
   }
-  addSensesGroup() {
-    const formArray = <FormArray>this.wordForm.controls["senses"]
-    let formGroup = <FormGroup>this.fb.group( { definition: null, example: null, id: null})
+  addSenseGroup(i: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"]
+    let formGroup = <FormGroup>this.fb.group( { definition: null, example: null })
     formArray.push( formGroup )
   }
-  deleteDefinitionControl(i: number) {
-    const formArray = <FormArray>this.wordForm.controls["senses"]
-    const formGroup = <FormGroup>formArray.at(i)
+  deleteDefinitionControl(i: number, j: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"]
+    const formGroup = <FormGroup>formArray.at(j)
     formGroup.removeControl("definition")
-    if ( !formGroup.contains("example") ) { formArray.removeAt(i) }
+    if ( !formGroup.contains("example") ) { formArray.removeAt(j) }
   }
-  deleteExampleControl(i: number) {
-    const formArray = <FormArray>this.wordForm.controls["senses"]
-    let formGroup = <FormGroup>formArray.at(i)
+  deleteExampleControl(i: number, j: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"]
+    const formGroup = <FormGroup>formArray.at(j)
     formGroup.removeControl("example")
-    if ( !formGroup.contains("definition") ) { formArray.removeAt(i) }
+    if ( !formGroup.contains("definition") ) { formArray.removeAt(j) }
   }
-
-  // ETYMOLOGIES
-  addEtymologiesArray(w: Word) {
-    var arr: any[] = []
-    for (let e of w.etymologies)  { arr.push( this.fb.control(e) )}
-    return arr
-  }
-  addEtymologyControl() {
-    const formArray = <FormArray>this.wordForm.controls["etymologies"]
-    let formControl = <FormControl>this.fb.control( null )
-    formArray.push( formControl )
-  }
-  deleteEtymologyControl(i: number) {
-    const formArray = <FormArray>this.wordForm.controls["etymologies"]
-    formArray.removeAt(i)
-  }
-
-
 
 }

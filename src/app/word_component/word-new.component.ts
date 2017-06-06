@@ -26,15 +26,18 @@ export class WordNewComponent {
                     .subscribe((json: any) => this.displayWord(json),
                                (error: any) => this.displayError(error))
   }
+
   displayWord(json: any) {
     if (json.does_exist) {
       this.errorReason = {wordExist: json.does_exist}
       this.displayError() }
     this.word = json
   }
+
   displayError(error?: any) {
     this.isErrorMessage = true
   }
+  
   getErrorMessage() {
     var message = ""
     var errorMessage = {
@@ -46,8 +49,5 @@ export class WordNewComponent {
 
     return message
   }
-  gotoDetail(word: Word): void {
-    let link = ['/words/' + word.text ]
-    this.router.navigate(link)
-  }
+
 }

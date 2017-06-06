@@ -6,16 +6,20 @@ export class List {
 export class Word {
   id: string
   text: string
-  lexicalCategory: string
-  pronunciations: Pronunciation[]
-  senses: Sense[]
-  etymologies: string[]
   needsToBeReviewed: number
+  pronunciations: Pronunciation[]
+  entries: Entry[]
 }
 export class Pronunciation {
-  phoneticSpelling: string
-  audioFile: string
   id: string
+  audioFile: string
+  phoneticSpelling: string
+}
+export class Entry {
+  id: string
+  lexicalCategory: string
+  etymologies: string[]
+  senses: Sense[]
 }
 export class Sense {
   id: string

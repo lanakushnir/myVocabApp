@@ -84,7 +84,7 @@ export class PlayComponent implements OnInit {
   getWord(text: string) {
     this.wordService.getWord( text )
                     .subscribe((word: Word) => this.displayWord(word),
-                              (error: any) => this.errorMessage = <any>error)
+                               (error: any) => this.errorMessage = <any>error)
   }
 
   displayWord(word: Word) {

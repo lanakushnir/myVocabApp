@@ -28,13 +28,13 @@ var WordService = (function () {
             .map(this.extractData)
             .catch(this.handleError);
     };
-    WordService.prototype.getList = function (param) {
-        return this.http.get(this.listsUrl + '/' + param)
+    WordService.prototype.getList = function (params) {
+        return this.http.get(this.listsUrl + '/' + params)
             .map(this.extractData)
             .catch(this.handleError);
     };
-    WordService.prototype.getWord = function (param) {
-        return this.http.get(this.wordsUrl + '/' + param)
+    WordService.prototype.getWord = function (params) {
+        return this.http.get(this.wordsUrl + '/' + params)
             .map(this.extractData)
             .catch(this.handleError);
     };
@@ -62,11 +62,9 @@ var WordService = (function () {
         var dummyWord = {
             id: null,
             text: null,
-            lexicalCategory: null,
             needsToBeReviewed: 10,
             pronunciations: [],
-            senses: [],
-            etymologies: []
+            entries: []
         };
         return dummyWord;
     };
