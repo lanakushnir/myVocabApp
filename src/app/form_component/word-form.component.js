@@ -19,9 +19,12 @@ var WordFormComponent = (function () {
         this.router = router;
         this.fb = fb;
         this.params = this.route.snapshot.params['text'];
+        this.lexicalCategories = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb'];
     }
     WordFormComponent.prototype.ngOnInit = function () {
         this.word = this.wordService.getSharedWord();
+        console.log("ng on init word get shared word");
+        console.log(this.word);
         if (this.word) {
             this.createForm(this.word);
             this.wordService.deleteSharedWord();
@@ -158,6 +161,11 @@ var WordFormComponent = (function () {
         var formGroup = this.fb.group({ audioFile: null, phoneticSpelling: null });
         formArray.push(formGroup);
     };
+    WordFormComponent.prototype.addP = function (i) {
+        var formArray = this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"];
+        var formGroup = this.fb.group({ definition: null, example: null });
+        formArray.push(formGroup);
+    };
     WordFormComponent.prototype.deletePhoneticSpellingControl = function (i) {
         var formArray = this.wordForm.controls["pronunciations"];
         var formGroup = formArray.at(i);
@@ -174,6 +182,7 @@ var WordFormComponent = (function () {
             formArray.removeAt(i);
         }
     };
+    // ENTRIES
     WordFormComponent.prototype.addEntriesArray = function (w) {
         var arr = [];
         for (var _i = 0, _a = w.entries; _i < _a.length; _i++) {

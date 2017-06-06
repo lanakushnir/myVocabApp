@@ -15,6 +15,7 @@ export class WordFormComponent implements OnInit {
   public wordForm: FormGroup
   errorMessage: string
   word: Word
+  lexicalCategories: string[] = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb']
 
   constructor (private wordService: WordService,
                private route: ActivatedRoute,
@@ -23,6 +24,8 @@ export class WordFormComponent implements OnInit {
 
   ngOnInit() {
     this.word = this.wordService.getSharedWord()
+    console.log("ng on init word get shared word")
+    console.log(this.word)
     if (this.word) {
       this.createForm(this.word)
       this.wordService.deleteSharedWord() }
@@ -135,6 +138,11 @@ export class WordFormComponent implements OnInit {
     let formGroup = <FormGroup>this.fb.group( { audioFile: null, phoneticSpelling: null })
     formArray.push( formGroup )
   }
+  addP(i: number) {
+    const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"]
+    let formGroup = <FormGroup>this.fb.group( { definition: null, example: null })
+    formArray.push( formGroup )
+  }
   deletePhoneticSpellingControl(i: number) {
     const formArray = <FormArray>this.wordForm.controls["pronunciations"]
     const formGroup = <FormGroup>formArray.at(i)
@@ -147,7 +155,7 @@ export class WordFormComponent implements OnInit {
     formGroup.removeControl("audioFile")
     if ( !formGroup.contains("phoneticSpelling") ) { formArray.removeAt(i) }
   }
-
+  // ENTRIES
   addEntriesArray(w: Word) {
     var arr: any[] = []
     for (let e of w.entries) {
@@ -169,7 +177,6 @@ export class WordFormComponent implements OnInit {
     const formArray = <FormArray>this.wordForm.controls["entries"]
     formArray.removeAt(i)
   }
-
   // ETYMOLOGIES
   addEtymologiesArray(e: Entry) {
     var arr: any[] = []

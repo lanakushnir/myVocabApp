@@ -45,7 +45,9 @@
             <!++ Lexical Gategory ++>
             <div class="control-holder" *ngIf="e.contains('lexicalCategory')">
               <label for="lexicalCategoryBox">lexical category</label>
-              <input #lexicalCategoryBox formControlName="lexicalCategory" placeholder="lexical category" />
+              <select #lexicalCategoryBox formControlName="lexicalCategory">
+                <option *ngFor="let lc of lexicalCategories" [value]="lc">{{lc}}</option>
+              </select>
               <i class="fa fa-trash-o" aria-hidden="true" (click)="deleteEntryGroup(i)"><span>delete entry {{i+1}}</span></i>
             </div>
 
