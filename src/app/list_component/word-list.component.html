@@ -13,9 +13,10 @@
     </div>
 
     <div class="word-list">
-      <a *ngFor="let word of list.words" [routerLink]="['/word', word.text]">
-        <span>{{word.text}}</span>
-      </a>
+      <div *ngFor="let word of list.words">
+        <a [routerLink]="['/word', word.text]"><span>{{word.text}}</span></a>
+        <i class="fa fa-times" aria-hidden="true" (click)="deleteWord(word, $event); deleted = true"></i>
+      </div>
     </div>
 
   </div>

@@ -2,7 +2,6 @@
 <div class="word-info" *ngIf="word">
 
   <div class="button" (click)="editWord()">EDIT</div>
-  <div class="button delete" (click)="deleteWord()">DELETE</div>
 
   <div>
     <span class="word" [routerLink]="['/word', word.text]">{{word.text}}</span>

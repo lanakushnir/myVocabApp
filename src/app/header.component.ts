@@ -8,8 +8,8 @@ import { Component } from '@angular/core'
       <div routerLink="/list">LIST</div>
       <div routerLink="/add">ADD</div>
     </div>
-    <p>myVocabApp</p>
   `
 })
 export class HeaderComponent {
+  // <p>myVocabApp</p>
 }

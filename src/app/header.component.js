@@ -15,7 +15,7 @@ var HeaderComponent = (function () {
     HeaderComponent = __decorate([
         core_1.Component({
             selector: 'header',
-            template: "\n    <div class=\"nav\">\n      <div routerLink=\"/new\">NEW</div>\n      <div routerLink=\"/list\">LIST</div>\n      <div routerLink=\"/add\">ADD</div>\n    </div>\n    <p>myVocabApp</p>\n  "
+            template: "\n    <div class=\"nav\">\n      <div routerLink=\"/new\">NEW</div>\n      <div routerLink=\"/list\">LIST</div>\n      <div routerLink=\"/add\">ADD</div>\n    </div>\n  "
         }), 
         __metadata('design:paramtypes', [])
     ], HeaderComponent);

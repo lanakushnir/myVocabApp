@@ -19,7 +19,9 @@ var WordFormComponent = (function () {
         this.router = router;
         this.fb = fb;
         this.params = this.route.snapshot.params['text'];
+        this.goBackLink = this.params ? '/word/' + this.params : '/new';
         this.showValidationMessage = false;
+        this.isFormValid = false;
         this.lexicalCategories = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb'];
         this.validationMessages = {
             'text': 'Word text is required.',
@@ -50,6 +52,8 @@ var WordFormComponent = (function () {
             .subscribe(function (word) { return _this.buildForm(_this.word = word); }, function (error) { return _this.errorMessage = error; });
     };
     WordFormComponent.prototype.updateOrCreateWord = function () {
+        if (!this.isFormValid)
+            return;
         var word = this.wordForm.value;
         if (this.params) {
             this.updateWord(word);
@@ -73,11 +77,6 @@ var WordFormComponent = (function () {
             return;
         this.router.navigate(['/word/' + word.text]);
     };
-    WordFormComponent.prototype.deleteWord = function () {
-        var _this = this;
-        this.wordService.deleteWord(this.word)
-            .subscribe(function (result) { return _this.router.navigate(['/list']); }, function (error) { return _this.errorMessage = error; });
-    };
     WordFormComponent.prototype.getDummyWord = function () {
         this.word = this.wordService.getDummyWord();
         this.buildForm(this.word);
@@ -94,7 +93,6 @@ var WordFormComponent = (function () {
             entries: this.fb.array(this.addEntriesArray(w))
         });
         this.wordForm.valueChanges.subscribe(function (data) { return _this.validateForm(); });
-        // this.onValueChanged()
     };
     WordFormComponent.prototype.mapWord = function (word) {
         this.word = word;
@@ -278,41 +276,56 @@ var WordFormComponent = (function () {
             formArray.removeAt(j);
         }
     };
+    // VALIDATION
+    // private abort = () => { this.presentError('text'); return }
     WordFormComponent.prototype.validateForm = function () {
         this.showValidationMessage = false;
         var form = this.wordForm;
-        if (!this.wordForm.controls['text']['valid']) {
+        var t = form.controls['text'];
+        if (!t['valid']) {
             this.presentError('text');
             return;
         }
-        var p_length = this.wordForm.controls['pronunciations']['length'];
+        var p = this.wordForm.controls['pronunciations'];
+        var p_length = p['length'];
         if (p_length < 1) {
             this.presentError('pronunciations');
             return;
         }
         for (var i = 0; i < p_length; i++) {
-            console.log(i + " this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']");
-            console.log(this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']);
-            if (this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['value'] != null) {
+            var ps = this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling'];
+            if (ps && !ps['valid'] || !ps) {
                 this.presentError('phoneticSpelling');
                 return;
             }
         }
-        // var e_length: number = this.wordForm.controls['entries']['length']
-        // if (e_length < 1) { this.presentError('entries'); return }
-        // for (var i = 0; i < e_length; i++) {
-        //
-        //   if (!this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory']['valid']) { this.presentError('lexicalCategory'); return }
-        //   var s_length: number = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['length']
-        //   if (s_length < 1) { this.presentError('senses'); return }
-        //
-        //   for (var j = 0; j < s_length; j++) {
-        //     if (!this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition']['valid']) { this.presentError('definition'); return }
-        //   }
-        // }
-        console.log('*********');
-        console.log(form);
-        console.log(this.wordForm);
+        var e = this.wordForm.controls['entries'];
+        var e_length = e['length'];
+        if (e_length < 1) {
+            this.presentError('entries');
+            return;
+        }
+        for (var i = 0; i < e_length; i++) {
+            var lc = this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory'];
+            if (!lc['valid']) {
+                this.presentError('lexicalCategory');
+                return;
+            }
+            var s = this.wordForm.controls['entries']['controls'][i]['controls']['senses'];
+            var s_length = s['length'];
+            if (s_length < 1) {
+                this.presentError('senses');
+                return;
+            }
+            for (var j = 0; j < s_length; j++) {
+                var d = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition'];
+                if (d && !d['valid'] || !d) {
+                    this.presentError('definition');
+                    return;
+                }
+            }
+        }
+        this.isFormValid = true;
     };
     WordFormComponent.prototype.presentError = function (key) {
         this.showValidationMessage = true;
@@ -320,8 +333,8 @@ var WordFormComponent = (function () {
     };
     WordFormComponent = __decorate([
         core_1.Component({
-            moduleId: module.id,
             selector: 'word-form',
+            moduleId: module.id,
             templateUrl: './word-form.component.html'
         }), 
         __metadata('design:paramtypes', [word_service_1.WordService, router_1.ActivatedRoute, router_1.Router, forms_1.FormBuilder])

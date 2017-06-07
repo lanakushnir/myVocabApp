@@ -31,7 +31,10 @@ button {
   background: #bebebe;
   color: #fafafa;
 }
-.fa { cursor: pointer; }
+.fa {
+  cursor: pointer;
+  vertical-align: middle;
+}
 .fa.fa-trash-o {
   opacity: 0.1;
   position: absolute;
@@ -55,7 +58,6 @@ button {
 .fa.fa-plus span {
   text-align: left;
   margin: 0 0 0 10px;
-  vertical-align: middle;
 }
 .fa.fa-trash-o:hover,
 .fa.fa-plus:hover { opacity: 1; }
@@ -65,7 +67,13 @@ button {
   opacity: 0.5;
   font-size: 17px;
   margin: 0px 10px;
-  vertical-align: middle;
+}
+.fa.fa-times {
+  opacity: 0.5;
+  margin-bottom: 5px;
+}
+.fa.fa-times:hover {
+  opacity: 1;
 }
 div.warning {
   margin: 30px auto;
@@ -345,13 +353,16 @@ div.section div.date-section span.play-icon:hover ~ span.amount {
 div.section div.word-list {
   margin: 0 30px;
 }
-div.section div.word-list a span {
+div.section div.word-list div {
   display: inline-block;
-  width: calc( 735px / 3);
+}
+div.section div.word-list div a span {
+  display: inline-block;
+  width: calc( 600px / 3);
   font-family: 'Buenard', 'Times New Roman', serif;
   font-size: 25px;
   line-height: 30px;
-  margin: 1px 1px 1px 1px;
+  margin: 1px 8px 1px 1px;
   padding: 0 10px 6px 10px;
 }
 div.section div.word-list a:hover span {

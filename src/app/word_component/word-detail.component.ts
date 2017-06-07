@@ -24,13 +24,11 @@ export class WordDetailComponent implements OnInit {
   ngOnInit() {
     if (!this.word) { this.getWord() }
   }
-
   getWord() {
     this.wordService.getWord(this.param)
                     .subscribe((word: Word) => this.word = word,
                                (error: any) =>  this.errorMessage = <any>error)
   }
-
   playAudio() {
     if (!this.audioEl) {
       this.audioEl = document.getElementById("audio")
@@ -43,17 +41,10 @@ export class WordDetailComponent implements OnInit {
       this.audioEl.pause()
     }
   }
-
   editWord() {
     if ( this.wordService.setSharedWord( this.word ) ) {
       this.router.navigate(['/word/' + this.word.text + '/edit'])
     }
-  }
-
-  deleteWord() {
-    this.wordService.deleteWord(this.word)
-                    .subscribe((result) => this.router.navigate(['/list']),
-                           (error: any) => this.errorMessage = <any>error)
   }
 
 }

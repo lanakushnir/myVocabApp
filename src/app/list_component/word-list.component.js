@@ -31,6 +31,11 @@ var WordListComponent = (function () {
     WordListComponent.prototype.playList = function (list) {
         this.router.navigate(['/play/' + list.date]);
     };
+    WordListComponent.prototype.deleteWord = function (word, event) {
+        var _this = this;
+        this.wordService.deleteWord(word)
+            .subscribe(function (result) { return event.target.parentElement.remove(); }, function (error) { return _this.errorMessage = error; });
+    };
     WordListComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

@@ -49,11 +49,6 @@ var WordDetailComponent = (function () {
             this.router.navigate(['/word/' + this.word.text + '/edit']);
         }
     };
-    WordDetailComponent.prototype.deleteWord = function () {
-        var _this = this;
-        this.wordService.deleteWord(this.word)
-            .subscribe(function (result) { return _this.router.navigate(['/list']); }, function (error) { return _this.errorMessage = error; });
-    };
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)

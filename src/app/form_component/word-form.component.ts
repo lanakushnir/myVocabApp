@@ -2,20 +2,23 @@ import { Component, Input, OnInit }          from '@angular/core'
 import { ReactiveFormsModule, FormBuilder, FormGroup,
         FormControl, FormArray, Validators } from '@angular/forms'
 import { Router, ActivatedRoute, Params }    from '@angular/router'
+import { Observable }                        from 'rxjs/Rx'
 import { WordService }                       from '../word.service'
 import { Word, Pronunciation, Entry, Sense } from '../word'
 
 @Component({
-  moduleId: module.id,
   selector: 'word-form',
+  moduleId: module.id,
   templateUrl: './word-form.component.html'
 })
 export class WordFormComponent implements OnInit {
   params = this.route.snapshot.params['text']
+  goBackLink: string = this.params ? '/word/'+this.params : '/new'
   public wordForm: FormGroup
   errorMessage: string
   showValidationMessage: boolean = false
   validationMessage: string
+  isFormValid: boolean = false
   word: Word
   lexicalCategories: string[] = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb']
 
@@ -38,12 +41,10 @@ export class WordFormComponent implements OnInit {
                               (error: any) =>  this.errorMessage = <any>error)
   }
   updateOrCreateWord() {
+    if (!this.isFormValid) return
     var word = this.wordForm.value
-    if (this.params) {
-      this.updateWord(word)
-    } else {
-      this.createWord(word)
-    }
+    if (this.params) { this.updateWord(word) }
+                else { this.createWord(word) }
   }
   updateWord(word: Word) {
     this.wordService.updateWord(word)
@@ -58,11 +59,6 @@ export class WordFormComponent implements OnInit {
   showUpdatedWord(word: Word) {
     if (!word) return
     this.router.navigate(['/word/' + word.text])
-  }
-  deleteWord() {
-    this.wordService.deleteWord(this.word)
-                    .subscribe((result) => this.router.navigate(['/list']),
-                              (error: any) => this.errorMessage = <any>error)
   }
   getDummyWord() {
     this.word = this.wordService.getDummyWord()
@@ -80,7 +76,6 @@ export class WordFormComponent implements OnInit {
       entries: this.fb.array( this.addEntriesArray(w) )
     })
     this.wordForm.valueChanges.subscribe(data => this.validateForm())
-    // this.onValueChanged()
   }
   mapWord(word?: Word) {
     this.word = word
@@ -205,6 +200,7 @@ export class WordFormComponent implements OnInit {
       arr.push( this.fb.group( obj ) )
     }
     return arr
+
   }
   addSenseGroup(i: number) {
     const formArray = <FormArray>this.wordForm.controls["entries"]["controls"][i]["controls"]["senses"]
@@ -224,36 +220,40 @@ export class WordFormComponent implements OnInit {
     if ( !formGroup.contains("definition") ) { formArray.removeAt(j) }
   }
 
+  // VALIDATION
+
+  // private abort = () => { this.presentError('text'); return }
+
   validateForm() {
     this.showValidationMessage = false;
     var form = this.wordForm
 
-    if ( !this.wordForm.controls['text']['valid']) { this.presentError('text'); return }
+    var t = form.controls['text']
+    if (!t['valid']) { this.presentError('text'); return }
 
-    var p_length: number = this.wordForm.controls['pronunciations']['length']
+    var p = this.wordForm.controls['pronunciations']
+    var p_length: number = p['length']
     if (p_length < 1) { this.presentError('pronunciations'); return }
     for (var i = 0; i < p_length; i++) {
-      console.log(i + " this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid']")
-      console.log(this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['valid'])
-      if (this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']['value'] != null) { this.presentError('phoneticSpelling'); return }
+      var ps = this.wordForm.controls['pronunciations']['controls'][i]['controls']['phoneticSpelling']
+      if (ps && !ps['valid'] || !ps) { this.presentError('phoneticSpelling'); return }
     }
 
-    // var e_length: number = this.wordForm.controls['entries']['length']
-    // if (e_length < 1) { this.presentError('entries'); return }
-    // for (var i = 0; i < e_length; i++) {
-    //
-    //   if (!this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory']['valid']) { this.presentError('lexicalCategory'); return }
-    //   var s_length: number = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['length']
-    //   if (s_length < 1) { this.presentError('senses'); return }
-    //
-    //   for (var j = 0; j < s_length; j++) {
-    //     if (!this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition']['valid']) { this.presentError('definition'); return }
-    //   }
-    // }
-
-    console.log('*********')
-    console.log(form)
-    console.log(this.wordForm)
+    var e = this.wordForm.controls['entries']
+    var e_length: number = e['length']
+    if (e_length < 1) { this.presentError('entries'); return }
+    for (var i = 0; i < e_length; i++) {
+      var lc = this.wordForm.controls['entries']['controls'][i]['controls']['lexicalCategory']
+      if (!lc['valid']) { this.presentError('lexicalCategory'); return }
+      var s = this.wordForm.controls['entries']['controls'][i]['controls']['senses']
+      var s_length: number = s['length']
+      if (s_length < 1) { this.presentError('senses'); return }
+      for (var j = 0; j < s_length; j++) {
+        var d = this.wordForm.controls['entries']['controls'][i]['controls']['senses']['controls'][j]['controls']['definition']
+        if (d && !d['valid'] || !d) { this.presentError('definition'); return }
+      }
+    }
+    this.isFormValid = true
   }
   presentError(key?: string) {
     this.showValidationMessage = true
