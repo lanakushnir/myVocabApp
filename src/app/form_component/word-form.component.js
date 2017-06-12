@@ -20,17 +20,19 @@ var WordFormComponent = (function () {
         this.fb = fb;
         this.params = this.route.snapshot.params['text'];
         this.goBackLink = this.params ? '/word/' + this.params : '/new';
-        this.showValidationMessage = false;
+        this.showErrorMessage = false;
         this.isFormValid = false;
         this.lexicalCategories = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb'];
-        this.validationMessages = {
+        this.errorMessages = {
             'text': 'Word text is required.',
             'pronunciations': 'Add at least one pronunciation.',
             'phoneticSpelling': 'Phonetic spelling is required.',
             'entries': 'Add at least one lexical entry.',
             'lexicalCategory': 'Select lexical category for the entry.',
             'senses': 'Add at least one sense of the word.',
-            'definition': 'Definition field is required.'
+            'definition': 'Definition field is required.',
+            'createError': 'Sorry, there was an error. Could not create the word.',
+            'updateError': 'Sorry, there was an error. Could not update the word.'
         };
     }
     WordFormComponent.prototype.ngOnInit = function () {
@@ -65,12 +67,12 @@ var WordFormComponent = (function () {
     WordFormComponent.prototype.updateWord = function (word) {
         var _this = this;
         this.wordService.updateWord(word)
-            .subscribe(function (word) { return _this.showUpdatedWord(word); }, function (error) { return _this.errorMessage = error; });
+            .subscribe(function (word) { return _this.showUpdatedWord(word); }, function (error) { return _this.presentError('updateError'); });
     };
     WordFormComponent.prototype.createWord = function (word) {
         var _this = this;
         this.wordService.createWord(word)
-            .subscribe(function (word) { return _this.showUpdatedWord(word); }, function (error) { return _this.errorMessage = error; });
+            .subscribe(function (word) { return _this.showUpdatedWord(word); }, function (error) { return _this.presentError('createError'); });
     };
     WordFormComponent.prototype.showUpdatedWord = function (word) {
         if (!word)
@@ -277,9 +279,8 @@ var WordFormComponent = (function () {
         }
     };
     // VALIDATION
-    // private abort = () => { this.presentError('text'); return }
     WordFormComponent.prototype.validateForm = function () {
-        this.showValidationMessage = false;
+        this.showErrorMessage = false;
         var form = this.wordForm;
         var t = form.controls['text'];
         if (!t['valid']) {
@@ -328,8 +329,8 @@ var WordFormComponent = (function () {
         this.isFormValid = true;
     };
     WordFormComponent.prototype.presentError = function (key) {
-        this.showValidationMessage = true;
-        this.validationMessage = this.validationMessages[key];
+        this.showErrorMessage = true;
+        this.errorMessage = this.errorMessages[key];
     };
     WordFormComponent = __decorate([
         core_1.Component({

@@ -3,6 +3,7 @@
 
   <form *ngIf="wordForm && word" [formGroup]="wordForm" (ngSubmit)="updateOrCreateWord(form)" novalidate>
     <div class="alert" *ngIf="showValidationMessage">{{ validationMessage }}</div>
+    <div class="alert">{{errorMessage}}</div>
 
     <div *ngIf="param" class="word-text">{{word.text}}</div>
     <div *ngIf="!param">
@@ -100,9 +101,9 @@
   </form>
 
 <div *ngIf="wordForm">
-  <!-- {{ wordForm.value | json }}
-  {{ wordForm.status }} -->
-  <!-- {{ word|json}} -->
+  {{ wordForm.value | json }}
+  {{ wordForm.status }}
+  {{ word|json}}
 </div>
 
 </div>

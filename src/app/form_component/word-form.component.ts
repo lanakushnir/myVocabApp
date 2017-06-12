@@ -16,8 +16,7 @@ export class WordFormComponent implements OnInit {
   goBackLink: string = this.params ? '/word/'+this.params : '/new'
   public wordForm: FormGroup
   errorMessage: string
-  showValidationMessage: boolean = false
-  validationMessage: string
+  showErrorMessage: boolean = false
   isFormValid: boolean = false
   word: Word
   lexicalCategories: string[] = ['noun', 'verb', 'adjective', 'adverb', 'interjection', 'auxiliary verb']
@@ -49,12 +48,12 @@ export class WordFormComponent implements OnInit {
   updateWord(word: Word) {
     this.wordService.updateWord(word)
                     .subscribe((word: Word) => this.showUpdatedWord(word),
-                              (error: any) => this.errorMessage = <any>error)
+                              (error: any) => this.presentError('updateError'))
   }
   createWord(word: Word) {
     this.wordService.createWord(word)
                     .subscribe((word: Word) => this.showUpdatedWord(word),
-                              (error: any) => this.errorMessage = <any>error)
+                              (error: any) => this.presentError('createError'))
   }
   showUpdatedWord(word: Word) {
     if (!word) return
@@ -221,11 +220,8 @@ export class WordFormComponent implements OnInit {
   }
 
   // VALIDATION
-
-  // private abort = () => { this.presentError('text'); return }
-
   validateForm() {
-    this.showValidationMessage = false;
+    this.showErrorMessage = false;
     var form = this.wordForm
 
     var t = form.controls['text']
@@ -256,16 +252,18 @@ export class WordFormComponent implements OnInit {
     this.isFormValid = true
   }
   presentError(key?: string) {
-    this.showValidationMessage = true
-    this.validationMessage = this.validationMessages[key]
+    this.showErrorMessage = true
+    this.errorMessage = this.errorMessages[key]
   }
-  validationMessages = {
+  errorMessages = {
     'text':  'Word text is required.',
     'pronunciations': 'Add at least one pronunciation.',
     'phoneticSpelling': 'Phonetic spelling is required.' ,
     'entries': 'Add at least one lexical entry.',
     'lexicalCategory': 'Select lexical category for the entry.',
     'senses': 'Add at least one sense of the word.',
-    'definition': 'Definition field is required.'
+    'definition': 'Definition field is required.',
+    'createError': 'Sorry, there was an error. Could not create the word.',
+    'updateError': 'Sorry, there was an error. Could not update the word.'
   }
 }
